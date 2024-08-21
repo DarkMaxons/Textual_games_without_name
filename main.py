@@ -80,7 +80,7 @@ class Joueur:
 
     def regarder_objet(self, nom_objet):
         objet = next((i for i in self.inventaire
-        si
+        if
         i.nom.lower() == nom_objet.lower()), None)
         if objet:
             objet.decrire()
