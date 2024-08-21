@@ -37,6 +37,15 @@ class Piece:
 
         print(description_complete)
 
+    def interagir(self, action):
+        interaction = self.interactions.get(action)
+        if interaction:
+            print(interaction)
+            return True
+        else:
+            print("Il n'y a rien de spécial à faire ici.")
+            return False
+
 
 class Objet:
     def __init__(self, nom, description):
@@ -129,7 +138,7 @@ def main():
         "Le couloir est étroit et mal éclairé. Un tableau étrange semble vous suivre du regard.",
         interactions={
             "inspecter tableau": "Le tableau représente un paysage obscur, mais les yeux de la figure centrale semblent vivants. Derrière le tableau, vous trouvez un interrupteur.",
-            "utiliser interrupteur": "L'interrupteur ouvre un passage secret dans le mur, révélant un escalier descendant vers la cave."
+            "utiliser interrupteur": "L'interrupteur ouvre un passage secret dans le mur, révélant un escalier descendant vers le bureau caché."
         }
     )
 
@@ -157,7 +166,28 @@ def main():
         }
     )
 
-    # Connecter les pièces
+    # Ajout d'une nouvelle pièce : le bureau caché
+    bureau = Piece(
+        "Bureau caché",
+        "Le bureau est petit et encombré de papiers. Une trappe sur le sol semble mener à un endroit inconnu.",
+        interactions={
+            "ouvrir trappe": "La trappe s'ouvre avec difficulté, révélant un passage secret vers le jardin."
+        }
+    )
+
+    # Ajout de la pièce du jardin
+    jardin = Piece(
+        "Jardin",
+        "Le jardin est envahi par les mauvaises herbes. Une pelle rouillée est plantée dans le sol à côté d'une zone récemment perturbée.",
+        interactions={
+            "creuser avec pelle": "Vous creusez dans le sol et découvrez un coffre contenant un trésor !"
+        }
+    )
+
+    # Connexions supplémentaires
+    couloir.connecter_piece(bureau, "bas")
+    bureau.connecter_piece(jardin, "sous-sol")
+
     salon.connecter_piece(cuisine, "nord")
     cuisine.connecter_piece(salon, "sud")
     salon.connecter_piece(couloir, "est")
@@ -206,7 +236,7 @@ def main():
                     print(f"- {objet.nom}")
             else:
                 print("Vous ne transportez rien.")
-        elif action in ["inspecter", "utiliser", "lire", "ouvrir"]:
+        elif action in ["inspecter", "utiliser", "lire", "ouvrir", "creuser"]:
             if len(commande) > 1:
                 action_avec_objet = " ".join(commande)
                 joueur.interagir(action_avec_objet)
