@@ -2,9 +2,10 @@ import random
 
 
 class Piece:
-    def __init__(self, nom, description_base, interactions=None):
+    def __init__(self, nom, description_base, objets_descriptions, interactions=None):
         self.nom = nom
         self.description_base = description_base
+        self.objets_descriptions = objets_descriptions
         self.pieces_connectees = {}
         self.objets = []
         self.interactions = interactions or {}
@@ -24,27 +25,15 @@ class Piece:
             self.objets.remove(objet)
         return objet
 
-    def decrire(self):
+    def decrire(self, inventaire):
         print(f"\n{self.nom}")
         description_complete = self.description_base
 
-        if self.objets:
-            objets_description = " Vous remarquez : " + ", ".join(
-                [f"{objet.nom} ({objet.description})" for objet in self.objets]) + "."
-            description_complete += objets_description
-        else:
-            description_complete += " Il ne reste plus rien d'intéressant ici."
+        for objet in self.objets:
+            if objet.nom.lower() not in [i.nom.lower() for i in inventaire]:
+                description_complete += " " + self.objets_descriptions.get(objet.nom.lower(), "")
 
         print(description_complete)
-
-    def interagir(self, action):
-        interaction = self.interactions.get(action)
-        if interaction:
-            print(interaction)
-            return True
-        else:
-            print("Il n'y a rien de spécial à faire ici.")
-            return False
 
 
 class Objet:
@@ -65,7 +54,7 @@ class Joueur:
         prochaine_piece = self.piece_actuelle.obtenir_piece_dans_direction(direction)
         if prochaine_piece:
             self.piece_actuelle = prochaine_piece
-            self.piece_actuelle.decrire()
+            self.piece_actuelle.decrire(self.inventaire)
             declencher_evenement_aleatoire()
         else:
             print("Vous vous cognez contre un mur. Il n'y a pas de chemin par là.")
@@ -79,9 +68,7 @@ class Joueur:
             print("Vous cherchez, mais ne trouvez pas cet objet.")
 
     def regarder_objet(self, nom_objet):
-        objet = next((i for i in self.inventaire
-        if
-        i.nom.lower() == nom_objet.lower()), None)
+        objet = next((i for i in self.inventaire if i.nom.lower() == nom_objet.lower()), None)
         if objet:
             objet.decrire()
         else:
@@ -109,7 +96,11 @@ def main():
     # Créer les pièces avec les interactions
     salon = Piece(
         "Salon",
-        "Le salon est sombre et poussiéreux. Une horloge sur le mur est arrêtée à 3h15. Une cheminée en marbre est au centre de la pièce. Un vieux livre est posé sur la table basse, et une clé est accrochée au-dessus de la cheminée.",
+        "Le salon est sombre et poussiéreux.",
+        {
+            "clé": " Une clé est accrochée au-dessus de la cheminée.",
+            "livre": " Un vieux livre est posé sur la table basse."
+        },
         interactions={
             "lire livre": "Le livre est rempli de notes griffonnées. Une phrase se démarque : 'Ne fais confiance qu'à la lumière du matin.'",
             "inspecter horloge": "L'horloge est arrêtée à 3h15. En la secouant, vous entendez un cliquetis étrange à l'intérieur.",
@@ -124,7 +115,11 @@ def main():
 
     cuisine = Piece(
         "Cuisine",
-        "La cuisine est déserte, une chaîne verrouille le réfrigérateur. Des placards sont ouverts, et un évier est rempli d'eau stagnante.",
+        "La cuisine est déserte.",
+        {
+            "couteau": " Un couteau rouillé est posé sur la table.",
+            "note": " Une note est collée au réfrigérateur."
+        },
         interactions={
             "lire note": "La note indique un code : 7412. Elle est signée 'M.'",
             "inspecter réfrigérateur": "Le réfrigérateur est verrouillé par une chaîne. Le code de la note pourrait peut-être le débloquer...",
@@ -139,7 +134,10 @@ def main():
 
     couloir = Piece(
         "Couloir",
-        "Le couloir est étroit et mal éclairé. Un tableau étrange semble vous suivre du regard. Une porte mène à la cave, mais elle est verrouillée.",
+        "Le couloir est étroit et mal éclairé.",
+        {
+            "tableau": " Un tableau étrange semble vous suivre du regard."
+        },
         interactions={
             "inspecter tableau": "Le tableau représente un paysage obscur, mais les yeux de la figure centrale semblent vivants. Derrière le tableau, vous trouvez un interrupteur.",
             "utiliser interrupteur": "L'interrupteur ouvre un passage secret dans le mur, révélant un escalier descendant vers le bureau caché.",
@@ -149,7 +147,10 @@ def main():
 
     cave = Piece(
         "Cave",
-        "La cave est sombre et humide. Des tonneaux en bois sont empilés contre le mur. Une vieille radio est posée sur une étagère, émettant un faible grésillement.",
+        "La cave est sombre et humide.",
+        {
+            "boîte": " Une petite boîte métallique est cachée derrière un tonneau."
+        },
         interactions={
             "allumer radio": "La radio grésille, puis vous entendez une voix lointaine : 'Le code du coffre est 3719.'",
             "inspecter tonneaux": "Les tonneaux semblent vides, mais l'un d'eux cache une petite boîte métallique."
@@ -161,7 +162,10 @@ def main():
 
     chambre = Piece(
         "Chambre",
-        "La chambre est en désordre. Le lit est défait, et l'armoire est fermée par un cadenas. Une fenêtre est brisée, laissant entrer un faible courant d'air.",
+        "La chambre est en désordre.",
+        {
+            "lampe torche": " Une lampe torche est posée sur la table de chevet."
+        },
         interactions={
             "ouvrir armoire": "Vous entrez le code '3719', et l'armoire s'ouvre en grinçant. À l'intérieur, vous trouvez une lampe torche.",
             "regarder par fenêtre": "À travers la fenêtre brisée, vous apercevez le jardin de la maison, envahi par les mauvaises herbes. Quelque chose scintille dans l'herbe."
@@ -173,7 +177,11 @@ def main():
 
     grenier = Piece(
         "Grenier",
-        "Le grenier est poussiéreux, rempli de vieilles boîtes et de toiles d'araignée. Une lanterne est posée sur une caisse, et un journal intime dépasse d'une boîte ouverte.",
+        "Le grenier est poussiéreux, rempli de vieilles boîtes.",
+        {
+            "lanterne": " Une lanterne est posée sur une caisse.",
+            "journal": " Un journal intime dépasse d'une boîte ouverte."
+        },
         interactions={
             "lire journal": "Le journal raconte l'histoire de la famille qui vivait ici. La dernière entrée parle de la découverte d'un 'trésor' dans le jardin.",
             "inspecter lanterne": "La lanterne est encore fonctionnelle, mais l'huile à l'intérieur est presque épuisée."
@@ -181,12 +189,17 @@ def main():
     )
 
     lanterne = Objet("lanterne", "Une vieille lanterne presque vide.")
+    journal = Objet("journal", "Un journal intime appartenant à un ancien résident.")
     grenier.ajouter_objet(lanterne)
+    grenier.ajouter_objet(journal)
 
     # Ajout d'une nouvelle pièce : le bureau caché
     bureau = Piece(
         "Bureau caché",
-        "Le bureau est petit et encombré de papiers. Une trappe sur le sol semble mener à un endroit inconnu.",
+        "Le bureau est petit et encombré de papiers.",
+        {
+            "clé ancienne": " Une clé ancienne est posée sur le bureau."
+        },
         interactions={
             "ouvrir trappe": "La trappe s'ouvre avec difficulté, révélant un passage secret vers le jardin.",
             "inspecter papiers": "Les papiers sont des notes sur les expériences occultes de l'ancien propriétaire de la maison."
@@ -199,16 +212,19 @@ def main():
     # Ajout de la pièce du jardin
     jardin = Piece(
         "Jardin",
-        "Le jardin est envahi par les mauvaises herbes. Une pelle rouillée est plantée dans le sol à côté d'une zone récemment perturbée.",
+        "Le jardin est envahi par les mauvaises herbes.",
+        {
+            "pelle": " Une pelle rouillée est plantée dans le sol.",
+            "coffre": " Un coffre ancien est enterré sous la terre."
+        },
         interactions={
             "creuser avec pelle": "Vous creusez dans le sol et découvrez un coffre contenant un trésor !"
         }
     )
 
     pelle = Objet("pelle", "Une pelle rouillée, mais encore utilisable.")
-    jardin.ajouter_objet(pelle)
-
     coffre = Objet("coffre", "Un coffre ancien, verrouillé, enterré sous la terre.")
+    jardin.ajouter_objet(pelle)
     jardin.ajouter_objet(coffre)
 
     # Connexions supplémentaires
@@ -255,7 +271,7 @@ def main():
                 nom_objet = " ".join(commande[1:])
                 joueur.regarder_objet(nom_objet)
             else:
-                joueur.piece_actuelle.decrire()
+                joueur.piece_actuelle.decrire(joueur.inventaire)
         elif action == "inventaire":
             if joueur.inventaire:
                 print("Vous transportez :")
