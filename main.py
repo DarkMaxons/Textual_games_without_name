@@ -1,5 +1,86 @@
 import random
 
+def afficher_synopsis():
+    # Codes de couleur ANSI
+    couleur_rouge = "\033[91m"
+    couleur_vert = "\033[92m"
+    couleur_bleu = "\033[94m"
+    couleur_jaune = "\033[93m"
+    couleur_reset = "\033[0m"  # Réinitialiser la couleur
+
+    synopsis = f"""
+{couleur_vert}Bienvenue dans "La Maison aux Secrets" !{couleur_reset}
+
+Vous êtes un détective à la recherche de réponses sur une ancienne famille mystérieusement disparue. 
+Cette maison, longtemps abandonnée, cache de nombreux secrets que vous devrez découvrir en explorant chaque pièce, 
+en récupérant des objets et en résolvant des énigmes. Votre mission est de découvrir le trésor caché quelque part 
+dans le jardin, mais soyez prudent... chaque coin sombre peut révéler quelque chose d'inattendu.
+
+{couleur_bleu}Commandes utilisables :{couleur_reset}
+{couleur_jaune}- aller [direction]{couleur_reset} : Se déplacer dans une direction spécifique (ex: aller au nord).
+{couleur_jaune}- prendre [objet]{couleur_reset} : Ramasser un objet et l'ajouter à votre inventaire (ex: prendre clé).
+{couleur_jaune}- regarder [objet]{couleur_reset} : Examiner un objet dans votre inventaire (ex: regarder clé).
+{couleur_jaune}- inspecter [objet]{couleur_reset} : Examiner un objet dans la pièce (ex: inspecter tableau).
+{couleur_jaune}- lire [objet]{couleur_reset} : Lire un document ou un livre (ex: lire note).
+{couleur_jaune}- ouvrir [objet]{couleur_reset} : Ouvrir un objet ou une porte (ex: ouvrir porte).
+{couleur_jaune}- soulever [objet]{couleur_reset} : Soulever un objet (ex: soulever serpillère).
+{couleur_jaune}- utiliser [objet]{couleur_reset} : Utiliser un objet de votre inventaire (ex: utiliser clé).
+{couleur_jaune}- creuser avec [objet]{couleur_reset} : Creuser à l'aide d'un objet (ex: creuser avec pelle).
+{couleur_jaune}- allumer [objet]{couleur_reset} : Allumer un appareil ou une source de lumière (ex: allumer radio).
+{couleur_jaune}- entrer code [code]{couleur_reset} : Entrer un code dans un cadenas ou un mécanisme (ex: entrer code 3719).
+{couleur_jaune}- inventaire{couleur_reset} : Afficher les objets que vous portez actuellement.
+{couleur_jaune}- quitter{couleur_reset} : Quitter le jeu.
+
+{couleur_rouge}Bonne chance, et souvenez-vous, la maison ne vous révèlera ses secrets que si vous persévérez !{couleur_reset}
+    """
+    print(synopsis)
+
+# Appel de la fonction pour afficher le synopsis au début du jeu
+afficher_synopsis()
+
+# Dictionnaire global pour mapper les objets
+objets_mapping = {
+    "Une clé": "clé",
+    "La clé": "clé",
+    "Cette clé": "clé",
+    "Le livre": "livre",
+    "Un livre": "livre",
+    "Ce livre": "livre",
+    "Un couteau": "couteau",
+    "Le couteau": "couteau",
+    "Ce couteau": "couteau",
+    "Une note": "note",
+    "La note": "note",
+    "Cette note": "note",
+    "Une boîte": "boîte",
+    "La boîte": "boîte",
+    "Cette boîte": "boîte",
+    "Une lampe torche": "lampe torche",
+    "La lampe torche": "lampe torche",
+    "Cette lampe torche": "lampe torche",
+    "Une lanterne": "lanterne",
+    "La lanterne": "lanterne",
+    "Cette lanterne": "lanterne",
+    "Un journal": "journal",
+    "Le journal": "journal",
+    "Ce journal": "journal",
+    "Une clé ancienne": "clé ancienne",
+    "La clé ancienne": "clé ancienne",
+    "Cette clé ancienne": "clé ancienne",
+    "Une pelle": "pelle",
+    "La pelle": "pelle",
+    "Cette pelle": "pelle",
+    "Un coffre": "coffre",
+    "Le coffre": "coffre",
+    "Ce coffre": "coffre",
+    "Une radio": "radio",
+    "La radio": "radio",
+    "Cette radio": "radio",
+    "Un cadenas": "cadenas",
+    "Le cadenas": "cadenas",
+    "Ce cadenas": "cadenas"
+}
+
 class Piece:
     def __init__(self, nom, description_base, objets_descriptions=None, interactions=None):
         self.nom = nom
@@ -54,20 +135,87 @@ class Joueur:
     def __init__(self, piece_de_depart):
         self.piece_actuelle = piece_de_depart
         self.inventaire = []
+        self.bureau_deverrouille = False  # Ajouter cet attribut pour suivre l'état de la porte
 
     def deplacer(self, direction):
         direction_mapping = {
             "au nord": "nord",
+            "nord": "nord",
+            "vers le nord": "nord",
+            "vers nord": "nord",
+            "aller nord": "nord",
+            "au nord-est": "nord",
+            "a nord": "nord",
+            "a nord": "nord",
+
             "au sud": "sud",
+            "sud": "sud",
+            "vers le sud": "sud",
+            "vers sud": "sud",
+            "aller sud": "sud",
+            "a sud": "sud",
+            "au sud-ouest": "sud",
+
             "a l'est": "est",
+            "à l'est": "est",
+            "est": "est",
+            "vers l'est": "est",
+            "vers est": "est",
+            "aller est": "est",
+            "a est": "est",
+
             "a l'ouest": "ouest",
+            "à l'ouest": "ouest",
+            "ouest": "ouest",
+            "vers l'ouest": "ouest",
+            "vers ouest": "ouest",
+            "aller ouest": "ouest",
+            "a ouest": "ouest",
+
             "en haut": "haut",
+            "haut": "haut",
+            "monter": "haut",
+            "monter en haut": "haut",
+            "monter vers haut": "haut",
+            "aller en haut": "haut",
+            "a haut": "haut",
+
             "en bas": "bas",
-            "au sous-sol": "sous-sol"
+            "bas": "bas",
+            "descendre": "bas",
+            "descendre en bas": "bas",
+            "aller en bas": "bas",
+            "vers en bas": "bas",
+            "a bas": "bas",
+
+            "au sous-sol": "sous-sol",
+            "sous-sol": "sous-sol",
+            "descendre": "sous-sol",
+            "descendre en bas": "sous-sol",
+            "descendre au sous sol": "sous-sol",
+            "sous sol": "sous-sol",
+            "aller au sous-sol": "sous-sol",
+            "aller sous sol": "sous-sol",
+            "vers sous-sol": "sous-sol",
+            "descente sous-sol": "sous-sol",
+
+            "a la porte": "porte",
+            "à la porte": "porte",
+            "porte": "porte",
+            "a porte": "porte",
+            "la porte": "porte",
+            "vers la porte": "porte",
+            "vers porte": "porte",
+            "aller porte": "porte",
         }
 
         direction_simplifiee = direction_mapping.get(direction, direction)
         prochaine_piece = self.piece_actuelle.obtenir_piece_dans_direction(direction_simplifiee)
+
+        if prochaine_piece == bureau and not self.bureau_deverrouille:
+            print("La porte est verrouillée. Vous devez entrer le bon code pour l'ouvrir.")
+            return
+
         if prochaine_piece:
             self.piece_actuelle = prochaine_piece
             self.piece_actuelle.decrire(self.inventaire)
@@ -76,7 +224,11 @@ class Joueur:
             print("Vous vous cognez contre un mur. Il n'y a pas de chemin par là.")
 
     def prendre_objet(self, nom_objet):
-        objet = self.piece_actuelle.retirer_objet(nom_objet)
+        # Simplifier le nom de l'objet avant de l'utiliser
+        nom_objet_simplifie = objets_mapping.get(nom_objet, nom_objet)
+
+        # Utiliser le nom simplifié pour retirer l'objet de la pièce
+        objet = self.piece_actuelle.retirer_objet(nom_objet_simplifie)
         if objet:
             self.inventaire.append(objet)
             print(f"Vous prenez soigneusement le {objet.nom} et le placez dans votre inventaire.")
@@ -84,7 +236,8 @@ class Joueur:
             print("Vous cherchez, mais ne trouvez pas cet objet.")
 
     def regarder_objet(self, nom_objet):
-        objet = next((i for i in self.inventaire if i.nom.lower() == nom_objet.lower()), None)
+        nom_objet_simplifie = objets_mapping.get(nom_objet, nom_objet)
+        objet = next((i for i in self.inventaire if i.nom.lower() == nom_objet_simplifie.lower()), None)
         if objet:
             objet.decrire()
         else:
@@ -99,11 +252,15 @@ class Joueur:
         action_type = action_split[0]
         nom_objet = " ".join(action_split[1:])
 
-        objet = next((i for i in self.inventaire if i.nom.lower() == nom_objet.lower()), None)
+        # Simplifier le nom de l'objet en utilisant objets_mapping
+        nom_objet_simplifie = objets_mapping.get(nom_objet, nom_objet)
+
+        objet = next((i for i in self.inventaire if i.nom.lower() == nom_objet_simplifie.lower()), None)
         if objet:
             if action_type == "lire":
                 if objet.nom.lower() == "livre":
-                    print("Le livre est rempli de notes griffonnées.\nUne phrase se démarque : 'Ne fais confiance qu'à la lumière du matin.'")
+                    print(
+                        "Le livre est rempli de notes griffonnées.\nUne phrase se démarque : 'Ne fais confiance qu'à la lumière du matin.'")
                 elif objet.nom.lower() == "note":
                     print("La note indique un code : 7412.\nElle est signée 'M.'")
                 else:
@@ -116,13 +273,14 @@ class Joueur:
             if action_type == "entrer" and "code" in nom_objet:
                 if nom_objet == "code 3719":
                     print(self.piece_actuelle.interactions.get("entrer code 3719"))
-                    self.piece_actuelle.connecter_piece(bureau, "ouest")
+                    self.bureau_deverrouille = True  # Déverrouille la porte
                 else:
                     print(self.piece_actuelle.interactions.get("entrer code", "Code incorrect."))
             else:
                 interaction_reussie = self.piece_actuelle.interagir(action)
                 if not interaction_reussie:
-                    print(f"Vous ne pouvez pas {action_type} {nom_objet} ici.")
+                    print(f"Vous ne pouvez pas {action_type} {nom_objet_simplifie} ici.")
+
 
 def declencher_evenement_aleatoire():
     evenements = [
@@ -136,6 +294,7 @@ def declencher_evenement_aleatoire():
     if random.random() > 0.5:
         print(f"Événement : {evenement}")
 
+# Définition des pièces du jeu
 salon = Piece(
     "Salon",
     "Le salon est une vaste pièce ornée de boiseries anciennes.\n"
@@ -181,13 +340,14 @@ cuisine.ajouter_objet(note)
 couloir = Piece(
     "Couloir",
     "Le couloir est étroit et mal éclairé, ses murs ornés de papiers peints à motifs floraux fanés.\n"
-        "Un tableau inquiétant représentant un paysage sombre est accroché au mur,\nses yeux semblent vous suivre où que vous alliez.\n",
+    "Un escalier semble donner accès à l'étage. Il y a sûrement d'autres pièces à explorer par là...\n"
+    "Un tableau inquiétant représentant un paysage sombre est accroché au mur,\nses yeux semblent vous suivre où que vous alliez.\n",
     {
         "tableau": "Le tableau représente une scène nocturne,\nles yeux de la figure centrale semblent vivants.\n"
     },
     interactions={
         "inspecter tableau": "Le tableau représente un paysage obscur,\nmais les yeux de la figure centrale semblent vivants.\nDerrière le tableau, vous trouvez un interrupteur.",
-        "utiliser interrupteur": "L'interrupteur ouvre un passage secret dans le mur,\nrévélant un escalier obscur donnant l'impression de s'enfoncer vers le bas....",
+        "utiliser interrupteur": "L'interrupteur ouvre un passage secret dans le mur,\nrévélant un escalier obscur donnant l'impression de s'enfoncer vers le bas...",
         "ouvrir porte": "La porte menant à la cave est verrouillée,\npeut-être qu'une clé pourrait l'ouvrir."
     }
 )
@@ -251,11 +411,13 @@ grenier.ajouter_objet(journal)
 
 bureau = Piece(
     "Bureau caché",
-    "Le bureau caché est une petite pièce exiguë,\nremplie de papiers jaunis et de vieux livres.\nL'air y est lourd, comme si personne n'y était entré depuis des années.\n",
+    "Le bureau caché est une petite pièce exiguë,\nremplie de papiers jaunis et de vieux livres.\nL'air y est lourd, comme si personne n'y était entré depuis des années.\n"
+    "Un vieux tapis gît au sol, mais l'un des coins est rabattu, laissant apparaître une charnière au sol.\n",
     {
         "clé ancienne": "Une clé ancienne est posée sur le bureau,\nrecouverte d'une fine couche de poussière.\n"
     },
     interactions={
+        "soulever tapis": "Le tapis, une fois soulevé, laisse apparaître une trappe tandis que la poussière s'évapore.",
         "ouvrir trappe": "La trappe s'ouvre avec difficulté,\nrévélant un passage secret vers le jardin.",
         "inspecter papiers": "Les papiers sont des notes sur les expériences occultes de l'ancien propriétaire de la maison."
     }
@@ -281,7 +443,9 @@ coffre = Objet("coffre", "Un vieux coffre, verrouillé, enterré sous la terre."
 jardin.ajouter_objet(pelle)
 jardin.ajouter_objet(coffre)
 
-cave.connecter_piece(bureau, "ouest")
+# Connexion des pièces entre elles
+cave.connecter_piece(bureau, "porte")
+bureau.connecter_piece(cave,"porte")
 bureau.connecter_piece(jardin, "sous-sol")
 
 salon.connecter_piece(cuisine, "nord")
@@ -295,8 +459,10 @@ chambre.connecter_piece(couloir, "sud")
 chambre.connecter_piece(grenier, "haut")
 grenier.connecter_piece(chambre, "bas")
 
+# Création du joueur
 joueur = Joueur(salon)
 
+# Boucle de jeu
 while True:
     commande = input("\nQue voulez-vous faire ? ").lower().split()
 
@@ -343,5 +509,7 @@ while True:
         print("Vous murmurez quelque chose d'incompréhensible.\nRien ne se passe.")
 
 if __name__ == "__main__":
+    afficher_synopsis()
     main()
+
 
