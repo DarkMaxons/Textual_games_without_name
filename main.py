@@ -1,4 +1,6 @@
 import random
+from PIL import Image
+from piece_salon import *
 
 def afficher_synopsis():
     # Codes de couleur ANSI
@@ -82,9 +84,10 @@ objets_mapping = {
 }
 
 class Piece:
-    def __init__(self, nom, description_base, objets_descriptions=None, interactions=None):
+    def __init__(self, nom, script_path, description_base, objets_descriptions=None, interactions=None):
         self.nom = nom
         self.description_base = description_base
+        self.script_path = script_path
         self.pieces_connectees = {}
         self.objets = []
         self.objets_descriptions = objets_descriptions or {}
@@ -114,6 +117,17 @@ class Piece:
                 description_complete += "\n" + self.objets_descriptions.get(objet.nom.lower(), "")
 
         print(description_complete)
+
+        self.executer_script()
+
+    def executer_script(self):
+        try:
+            if self.script_path:
+                exec(open(self.script_path).read())
+            else:
+                print("Aucun script disponible pour cette pièce.")
+        except Exception as e:
+            print(f"Erreur lors de l'exécution du script pour la pièce {self.nom}: {e}")
 
     def interagir(self, action):
         interaction = self.interactions.get(action)
@@ -297,10 +311,11 @@ def declencher_evenement_aleatoire():
 # Définition des pièces du jeu
 salon = Piece(
     "Salon",
+    "piece_salon.py",
     "Le salon est une vaste pièce ornée de boiseries anciennes.\n"
     "Un grand sofa en cuir craquelé trône au centre, face à une cheminée en marbre ornée de sculptures complexes.\n"
     "Une grande horloge murale, arrêtée à 3h15, domine l'un des murs.\n",
-    {
+    objets_descriptions={
         "clé": "Une clé rouillée est accrochée au-dessus de la cheminée, presque cachée parmi les sculptures.\n",
         "livre": "Un vieux livre, à la couverture usée, est posé sur la table basse en bois massif, couvert de poussière.\n"
     },
@@ -318,10 +333,11 @@ salon.ajouter_objet(livre)
 
 cuisine = Piece(
     "Cuisine",
+    "piece_salon.py",
     "La cuisine est déserte et plongée dans une semi-obscurité.\n"
     "Une vieille table en bois occupe le centre de la pièce, entourée de chaises désassorties.\n"
     "Un réfrigérateur verrouillé est adossé à un mur, et l'évier est rempli d'eau stagnante.\n",
-    {
+    objets_descriptions={
         "couteau": "Un couteau rouillé, visiblement ancien, est posé sur la table, prêt à être utilisé.\n",
         "note": "Une note jaunie est collée sur le réfrigérateur, ses bords commencent à se détacher.\n"
     },
@@ -339,10 +355,11 @@ cuisine.ajouter_objet(note)
 
 couloir = Piece(
     "Couloir",
+    "piece_salon.py",
     "Le couloir est étroit et mal éclairé, ses murs ornés de papiers peints à motifs floraux fanés.\n"
     "Un escalier semble donner accès à l'étage. Il y a sûrement d'autres pièces à explorer par là...\n"
     "Un tableau inquiétant représentant un paysage sombre est accroché au mur,\nses yeux semblent vous suivre où que vous alliez.\n",
-    {
+    objets_descriptions={
         "tableau": "Le tableau représente une scène nocturne,\nles yeux de la figure centrale semblent vivants.\n"
     },
     interactions={
@@ -354,11 +371,12 @@ couloir = Piece(
 
 cave = Piece(
     "Cave",
+    "piece_salon.py",
     "La cave est sombre, humide et sent la moisissure.\n"
     "Des tonneaux de vin vides sont empilés dans un coin, mais il semble que quelque chose brille derrière l'un d'eux.\n"
     "Une vieille radio, recouverte de poussière, est posée sur une étagère branlante.\n"
     "Une vieille porte en bois massif se trouve à l'ouest, verrouillée par un énorme cadenas à code.\n",
-    {
+    objets_descriptions={
         "boîte": "Une petite boîte métallique est cachée derrière l'un des tonneaux, à peine visible dans l'ombre.\n",
         "radio": "Une vieille radio est posée sur l'étagère, couverte de poussière.\n",
         "cadenas": "Un énorme cadenas à code verrouille la porte en bois massif à l'ouest.\n"
@@ -377,9 +395,10 @@ cave.ajouter_objet(boite)
 
 chambre = Piece(
     "Chambre",
+    "piece_salon.py",
     "La chambre est en désordre,\ncomme si elle avait été abandonnée en pleine nuit.\nLe lit est défait, ses draps épars.\n"
     "Une fenêtre brisée laisse entrer un faible courant d'air glacial.\n",
-    {
+    objets_descriptions={
         "lampe torche": "Une lampe torche repose sur la table de chevet, prête à être utilisée.\n"
     },
     interactions={
@@ -393,8 +412,9 @@ chambre.ajouter_objet(lampe_torche)
 
 grenier = Piece(
     "Grenier",
+    "piece_salon.py",
     "Le grenier est encombré de vieilles boîtes et couvert de toiles d'araignée.\nLa faible lumière qui filtre à travers les petites fenêtres poussiéreuses éclaire à peine la pièce.\n",
-    {
+    objets_descriptions={
         "lanterne": "Une lanterne poussiéreuse repose sur une caisse,\nson huile presque épuisée.\n",
         "journal": "Un vieux journal intime dépasse d'une boîte,\nses pages jaunies semblent prêtes à se désintégrer.\n"
     },
@@ -411,9 +431,10 @@ grenier.ajouter_objet(journal)
 
 bureau = Piece(
     "Bureau caché",
+    "piece_salon.py",
     "Le bureau caché est une petite pièce exiguë,\nremplie de papiers jaunis et de vieux livres.\nL'air y est lourd, comme si personne n'y était entré depuis des années.\n"
     "Un vieux tapis gît au sol, mais l'un des coins est rabattu, laissant apparaître une charnière au sol.\n",
-    {
+    objets_descriptions={
         "clé ancienne": "Une clé ancienne est posée sur le bureau,\nrecouverte d'une fine couche de poussière.\n"
     },
     interactions={
@@ -428,8 +449,9 @@ bureau.ajouter_objet(cle_bureau)
 
 jardin = Piece(
     "Jardin",
+    "piece_salon.py",
     "Le jardin est sauvage et envahi par les mauvaises herbes.\nUne légère brise fait bruisser les feuilles des arbres envahis de lierre.\n",
-    {
+    objets_descriptions={
         "pelle": "Une pelle rouillée est plantée dans le sol,\nprès d'une zone où la terre semble avoir été récemment retournée.\n",
         "coffre": "Un vieux coffre, enterré sous la terre, semble attendre d'être découvert.\n"
     },
@@ -511,5 +533,4 @@ while True:
 if __name__ == "__main__":
     afficher_synopsis()
     main()
-
 
