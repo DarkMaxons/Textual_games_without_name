@@ -58,6 +58,7 @@ def generate_ascii_image(image_path):
         ascii_img = ""
         for i in range(0, len(ascii_str), new_width):
             ascii_img += ''.join(ascii_str[i:i + new_width]) + "\n"
+            
 
         print(ascii_img)
     except Exception as e:
