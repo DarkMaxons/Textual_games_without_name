@@ -1,70 +1,132 @@
-# Textual_games_without_name
+# La Maison aux Secrets
 
-Welcome to **"The House of Secrets"**! This text-based adventure game places you in the role of a detective searching for answers about an ancient family that mysteriously disappeared. As you explore the different rooms of the house, you will discover hidden objects, solve puzzles, and attempt to unravel the mysteries surrounding this mansion. Your ultimate mission is to find the treasure hidden somewhere in the garden.
+Aventure textuelle gothique en Python, construite à partir du prototype original. Le jeu mêle exploration, inventaire, énigmes en chaîne, indices progressifs, sauvegarde JSON et illustrations dynamiques converties en caractères ASCII.
 
-## 📖 Synopsis
+## Lancer le jeu
 
-You are a private detective called to investigate an old, abandoned house. The family who lived there mysteriously vanished years ago, and rumors speak of secrets buried within the mansion. You must explore every corner of the house, uncover hidden objects, and solve puzzles to uncover what happened to the family and perhaps find the hidden treasure. But beware, for the house itself seems to have a life of its own...
+### Sous Windows
 
-## 🎮 Game Features
+1. Installez Python 3.10 ou une version plus récente.
+2. Double-cliquez sur `installer.bat` une seule fois.
+3. Double-cliquez ensuite sur `lancer_jeu.bat`.
 
-- **Explore** multiple interconnected rooms.
-- **Interact** with various objects to progress the story.
-- **Solve puzzles** to unlock new areas.
-- **Manage an inventory** of objects to advance in the game.
-- **Experience random events** that add a touch of mystery.
+Ou depuis PowerShell :
 
-## 🕹️ Game Commands
+```powershell
+py -m pip install -r requirements.txt
+py main.py
+```
 
-Here are the main commands you can use in the game:
+### Sous Linux ou macOS
 
-- **`go [direction]`**: Move in a specific direction (e.g., `go north`).
-- **`take [object]`**: Pick up an object and add it to your inventory (e.g., `take key`).
-- **`look at [object]`**: Examine an object in your inventory (e.g., `look at key`).
-- **`inspect [object]`**: Examine an object in the room (e.g., `inspect painting`).
-- **`read [object]`**: Read a document or a book (e.g., `read note`).
-- **`open [object]`**: Open an object or a door (e.g., `open door`).
-- **`lift [object]`**: Lift an object (e.g., `lift rug`).
-- **`use [object]`**: Use an object from your inventory (e.g., `use key`).
-- **`dig with [object]`**: Dig using an object (e.g., `dig with shovel`).
-- **`light [object]`**: Light an appliance or a light source (e.g., `light radio`).
-- **`enter code [code]`**: Enter a code into a lock or mechanism (e.g., `enter code 3719`).
-- **`inventory`**: Display the objects you are currently carrying.
-- **`quit`**: Quit the game.
+```bash
+python3 -m pip install -r requirements.txt
+python3 main.py
+```
 
-## 💻 How to Play
+Pillow ne sert qu'au rendu des images. Sans Pillow, le jeu reste jouable et affiche des vignettes ASCII de secours.
 
-1. **Download** the Python script and place it in a directory on your computer.
-2. **Ensure Python is installed** on your machine. You can download it [here](https://www.python.org/downloads/).
-3. Open a **command line** or **terminal** and navigate to the directory containing the script.
-4. **Start the game** by executing the following command:
+## Contenu de cette version
 
-    ```bash
-    python filename.py
-    ```
+- 18 pièces reliées de manière cohérente sur trois niveaux et dans le jardin.
+- Une enquête complète autour de la disparition de la famille Valombre.
+- 19 objets manipulables, dont des clés, documents, outils et trois sceaux.
+- Plus d'une douzaine d'énigmes liées entre elles, sans connaissance extérieure nécessaire.
+- Trois fins différentes selon la décision prise dans la crypte.
+- Quatre secrets facultatifs et plusieurs succès.
+- Un journal d'indices, des objectifs, une carte des pièces visitées et des indices progressifs.
+- Sauvegarde et chargement au format JSON.
+- Parseur tolérant aux accents, articles et synonymes courants.
+- Une image différente pour chaque pièce, automatiquement convertie en ASCII selon la largeur du terminal.
 
-## 🛠️ Compiling to an Executable (.exe)
+## Commandes utiles
 
-If you want to compile the game into an executable file for Windows, follow these steps:
+```text
+aller nord
+aller cuisine
+regarder
+inspecter horloge
+prendre lampe
+lire journal
+utiliser pile sur lampe
+combiner pile avec lampe
+ouvrir placards
+allumer radio
+entrer code 7412
+régler horloge 3h15
+ordonner fleurs rose iris lys pavot
+placer sceaux sur autel
+```
 
-1. Install `pyinstaller` using pip:
+Commandes d'assistance :
 
-    ```bash
-    pip install pyinstaller
-    ```
+```text
+inventaire
+objectifs
+journal
+indice
+carte
+succès
+sauvegarder
+charger
+ascii on
+ascii off
+ascii couleur
+ascii mono
+largeur 80
+```
 
-2. Use `pyinstaller` to create an executable:
+La commande `aide` affiche la liste directement dans le jeu.
 
-    ```bash
-    pyinstaller --onefile filename.py
-    ```
+## Illustrations ASCII par pièce
 
-3. The executable will be generated in the `dist` folder. You can access it and run the game without needing Python installed on the machine.
+Chaque pièce possède son propre chemin d'image dans `main.py` et charge un fichier portant son identifiant dans :
 
-## 🤝 Contributions
+```text
+assets/rooms/
+```
 
-Any contributions to improve the game are welcome! Feel free to submit pull requests or report issues through the issues tab.
+Exemples :
 
-## 📝 License
+```text
+assets/rooms/salon.png
+assets/rooms/cuisine.png
+assets/rooms/cave.png
+assets/rooms/serre.png
+assets/rooms/crypte.png
+```
 
-This project is licensed under the MIT License. You are free to use, modify, and distribute it as you wish.
+Pour remplacer une illustration, conservez simplement le même nom de fichier. Les formats horizontaux assez contrastés donnent généralement le meilleur résultat. Le cache du rendu est recréé au prochain lancement du jeu.
+
+Le fichier `generate_assets.py` régénère les silhouettes de secours. Il conserve l'image source du salon dans `assets/rooms/salon_source.png`.
+
+## Organisation du projet
+
+```text
+main.py                 moteur, monde, objets, énigmes et boucle du jeu
+ascii_renderer.py       conversion générique PNG/JPG vers ASCII
+piece_salon.py          compatibilité avec l'ancien script de conversion
+generate_assets.py      génération des illustrations de secours
+test_game.py            tests automatiques et parcours complet
+assets/rooms/            une illustration distincte par pièce
+legacy/                  sauvegarde des deux scripts d'origine
+SOLUTION.md              solution complète avec spoilers
+```
+
+## Tester le projet
+
+```bash
+python -m unittest -v
+```
+
+Les tests vérifient notamment que la solution principale est entièrement jouable, que les images sont distinctes et présentes, que l'interrupteur fixe fonctionne, et que la sauvegarde peut être rechargée.
+
+## Ajouter une pièce
+
+1. Ajoutez une entrée `Piece(...)` dans `_creer_pieces()`.
+2. Reliez-la avec une ou plusieurs `Sortie(...)`.
+3. Ajoutez une méthode d'interaction ou complétez un gestionnaire existant.
+4. Placez son image dans `assets/rooms/<identifiant>.png`.
+5. Ajoutez son gestionnaire dans `action_contextuelle()` si la pièce possède des interactions spécifiques.
+
+Le moteur sépare les objets portables, les éléments fixes du décor, les sorties et les drapeaux d'état. Cette structure permet d'ajouter des énigmes sans exécuter dynamiquement un script avec `exec()`.

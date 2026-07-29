@@ -1,68 +1,36 @@
-from PIL import Image
+"""Compatibilité avec l'ancien script de conversion d'image.
 
-# Définir les variables globales ici si nécessaire
-ASCII_GRAYSCALE = [
-    "\033[38;5;232m",
-    "\033[38;5;233m",
-    "\033[38;5;234m",
-    "\033[38;5;235m",
-    "\033[38;5;236m",
-    "\033[38;5;237m",
-    "\033[38;5;238m",
-    "\033[38;5;239m",
-    "\033[38;5;240m",
-    "\033[38;5;241m",
-    "\033[38;5;242m",
-    "\033[38;5;243m",
-    "\033[38;5;244m",
-    "\033[38;5;245m",
-    "\033[38;5;246m",
-    "\033[38;5;247m",
-    "\033[38;5;248m",
-    "\033[38;5;249m",
-    "\033[38;5;250m",
-    "\033[38;5;251m",
-    "\033[38;5;252m",
-    "\033[38;5;253m",
-    "\033[38;5;254m",
-    "\033[38;5;255m"
-]
-RESET_COLOR = "\033[0m"
+L'ancien projet importait ``generate_ascii_image`` depuis ``piece_salon.py``.
+Cette version conserve cette fonction, mais utilise le moteur générique capable
+d'afficher n'importe quelle pièce.
+"""
 
-ascii_chars = "@%#*+=-:. "
+from __future__ import annotations
 
-def pixel_to_ascii(pixel):
-    gray_scale = pixel // 11
-    ascii_char = ascii_chars[min(pixel // 25, len(ascii_chars) - 1)]
-    return ASCII_GRAYSCALE[gray_scale] + ascii_char + RESET_COLOR
+from pathlib import Path
 
-def generate_ascii_image(image_path):
-    try:
-        image = Image.open(image_path)
+from ascii_renderer import render_image
 
-        # Redimensionner l'image
-        new_width = 110
-        width, height = image.size
-        aspect_ratio = height / width
-        new_height = int(aspect_ratio * new_width * 0.55)
-        image = image.resize((new_width, new_height))
 
-        # Convertir en niveaux de gris
-        image = image.convert('L')
+def generate_ascii_image(
+    image_path: str | Path,
+    *,
+    width: int = 96,
+    color: bool | None = None,
+    fallback_key: str | None = None,
+) -> str:
+    """Convertit puis affiche une image en ASCII et retourne la chaîne produite."""
 
-        # Mapper les pixels en caractères ASCII colorés
-        pixels = image.getdata()
-        ascii_str = [pixel_to_ascii(pixel) for pixel in pixels]
+    ascii_image = render_image(
+        image_path,
+        width=width,
+        color=color,
+        fallback_key=fallback_key,
+    )
+    print(ascii_image)
+    return ascii_image
 
-        # Former l'image ASCII finale
-        ascii_img = ""
-        for i in range(0, len(ascii_str), new_width):
-            ascii_img += ''.join(ascii_str[i:i + new_width]) + "\n"
-            
-
-        print(ascii_img)
-    except Exception as e:
-        print(f"Erreur lors de l'exécution du script pour la pièce Salon: {e}")
 
 if __name__ == "__main__":
-    generate_ascii_image("salon.png")
+    root = Path(__file__).resolve().parent
+    generate_ascii_image(root / "assets" / "rooms" / "salon.png", fallback_key="salon")
