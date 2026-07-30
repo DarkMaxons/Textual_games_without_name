@@ -1,66 +1,721 @@
-<!DOCTYPE html>
-<html lang="fr">
+from pathlib import Path
 
+html = r'''<!DOCTYPE html>
+<html lang="fr" data-theme="green">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>TGWN - By Maxonsss</title>
+    <title>TGWN // Terminal Minitel</title>
 
-    <!-- Doit être chargé avant les autres scripts -->
+    <!-- Doit rester chargé avant PyScript -->
     <script src="./mini-coi.js" scope="./"></script>
 
-    <!-- PyScript -->
-    <link rel="stylesheet"
-          href="https://pyscript.net/releases/2026.3.1/core.css">
+    <!-- Polices rétro -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap"
+        rel="stylesheet"
+    >
 
-    <script type="module"
-            src="https://pyscript.net/releases/2026.3.1/core.js">
+    <!-- PyScript -->
+    <link
+        rel="stylesheet"
+        href="https://pyscript.net/releases/2026.3.1/core.css"
+    >
+    <script
+        type="module"
+        src="https://pyscript.net/releases/2026.3.1/core.js">
     </script>
 
     <style>
+        :root {
+            --page-bg: #07070a;
+            --page-grid: rgba(70, 255, 140, 0.055);
+
+            --chassis-light: #d3cbb4;
+            --chassis: #aaa38f;
+            --chassis-dark: #655f53;
+            --chassis-shadow: #26231e;
+
+            --screen-bg: #020b06;
+            --screen-deep: #000503;
+            --screen-border: #252b25;
+
+            --phosphor: #63ff91;
+            --phosphor-bright: #d5ffe0;
+            --phosphor-muted: #29994e;
+            --phosphor-glow: rgba(55, 255, 117, 0.42);
+            --phosphor-soft: rgba(55, 255, 117, 0.13);
+
+            --button-face: #d6ceb6;
+            --button-shadow: #6c6658;
+            --button-text: #171812;
+        }
+
+        html[data-theme="purple"] {
+            --page-grid: rgba(220, 80, 255, 0.06);
+
+            --screen-bg: #0b0210;
+            --screen-deep: #040006;
+
+            --phosphor: #e15cff;
+            --phosphor-bright: #f8d7ff;
+            --phosphor-muted: #8630a0;
+            --phosphor-glow: rgba(224, 70, 255, 0.46);
+            --phosphor-soft: rgba(224, 70, 255, 0.14);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            min-height: 100%;
+            background: var(--page-bg);
+        }
+
         body {
-            margin: 0;
             min-height: 100vh;
-            background: #090b0f;
-            color: #e6edf3;
-            font-family: Arial, sans-serif;
+            margin: 0;
+            overflow-x: hidden;
+            color: var(--phosphor);
+            font-family: "VT323", "Courier New", monospace;
+            background:
+                linear-gradient(rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0.82)),
+                repeating-linear-gradient(
+                    0deg,
+                    transparent 0,
+                    transparent 31px,
+                    var(--page-grid) 32px
+                ),
+                repeating-linear-gradient(
+                    90deg,
+                    transparent 0,
+                    transparent 31px,
+                    var(--page-grid) 32px
+                ),
+                radial-gradient(circle at 50% -20%, #1f2525 0, #090a0d 44%, #030305 100%);
+        }
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            z-index: -1;
+            opacity: 0.18;
+            pointer-events: none;
+            background-image:
+                radial-gradient(circle, rgba(255, 255, 255, 0.22) 0 1px, transparent 1px);
+            background-size: 5px 5px;
+            mix-blend-mode: soft-light;
         }
 
         main {
-            width: min(1000px, 94%);
-            margin: 40px auto;
+            width: min(1120px, calc(100% - 24px));
+            margin: 0 auto;
+            padding: 38px 0 56px;
+        }
+
+        .page-header {
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .eyebrow {
+            margin: 0 0 14px;
+            color: var(--phosphor-muted);
+            font-family: "Press Start 2P", monospace;
+            font-size: clamp(0.48rem, 1.5vw, 0.68rem);
+            line-height: 1.8;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
         }
 
         h1 {
-            text-align: center;
+            margin: 0;
+            color: var(--phosphor-bright);
+            font-family: "Press Start 2P", monospace;
+            font-size: clamp(1.05rem, 4vw, 2rem);
+            line-height: 1.45;
+            text-shadow:
+                0 0 6px var(--phosphor),
+                0 0 18px var(--phosphor-glow);
         }
 
-        .informations {
-            text-align: center;
-            color: #9da7b3;
-            margin-bottom: 25px;
+        .subtitle {
+            margin: 16px auto 0;
+            max-width: 720px;
+            color: var(--phosphor);
+            font-size: clamp(1.15rem, 3vw, 1.45rem);
+            line-height: 1.15;
+            letter-spacing: 0.04em;
+            text-shadow: 0 0 8px var(--phosphor-glow);
+        }
+
+        .minitel {
+            position: relative;
+            padding: clamp(17px, 3vw, 34px);
+            border: 4px solid var(--chassis-dark);
+            border-radius: 30px 30px 22px 22px;
+            background:
+                linear-gradient(145deg, rgba(255, 255, 255, 0.28), transparent 22%),
+                linear-gradient(160deg, var(--chassis-light), var(--chassis) 64%, #8d8674);
+            box-shadow:
+                0 7px 0 var(--chassis-shadow),
+                0 18px 40px rgba(0, 0, 0, 0.66),
+                inset 3px 3px 0 rgba(255, 255, 255, 0.34),
+                inset -5px -5px 0 rgba(67, 61, 52, 0.2);
+        }
+
+        .minitel::after {
+            content: "";
+            position: absolute;
+            left: 7%;
+            right: 7%;
+            bottom: -14px;
+            height: 12px;
+            border-radius: 0 0 12px 12px;
+            background: #4b463c;
+            box-shadow: 0 6px 10px rgba(0, 0, 0, 0.55);
+        }
+
+        .brand-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 14px;
+            margin: 0 4px 14px;
+            color: #3c3a32;
+            font-family: "Press Start 2P", monospace;
+            font-size: clamp(0.48rem, 1.4vw, 0.68rem);
+            text-transform: uppercase;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-led {
+            width: 10px;
+            height: 10px;
+            flex: 0 0 auto;
+            border: 2px solid #4b4b3e;
+            border-radius: 2px;
+            background: var(--phosphor);
+            box-shadow:
+                0 0 5px var(--phosphor),
+                0 0 11px var(--phosphor-glow);
+            animation: led-pulse 2.2s steps(2, end) infinite;
+        }
+
+        @keyframes led-pulse {
+            50% {
+                opacity: 0.48;
+            }
+        }
+
+        .screen-frame {
+            position: relative;
+            min-height: 540px;
+            padding: clamp(12px, 2.2vw, 23px);
+            overflow: hidden;
+            border: 6px solid var(--screen-border);
+            border-radius: 45% / 7%;
+            background:
+                radial-gradient(
+                    ellipse at center,
+                    color-mix(in srgb, var(--screen-bg) 95%, var(--phosphor) 5%) 0,
+                    var(--screen-bg) 62%,
+                    var(--screen-deep) 100%
+                );
+            box-shadow:
+                inset 0 0 0 3px #050806,
+                inset 0 0 42px rgba(0, 0, 0, 0.95),
+                inset 0 0 72px var(--phosphor-soft),
+                0 0 0 3px rgba(255, 255, 255, 0.13),
+                0 7px 13px rgba(0, 0, 0, 0.45);
+            transition:
+                box-shadow 180ms ease,
+                background 180ms ease;
+        }
+
+        /* Courbure, lignes CRT et léger scintillement */
+        .screen-frame::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            z-index: 5;
+            pointer-events: none;
+            border-radius: inherit;
+            background:
+                linear-gradient(
+                    rgba(18, 16, 16, 0) 50%,
+                    rgba(0, 0, 0, 0.21) 50%
+                ),
+                linear-gradient(
+                    90deg,
+                    rgba(255, 0, 0, 0.018),
+                    rgba(0, 255, 0, 0.008),
+                    rgba(0, 0, 255, 0.018)
+                );
+            background-size: 100% 4px, 6px 100%;
+            opacity: 0.78;
+        }
+
+        .screen-frame::after {
+            content: "";
+            position: absolute;
+            inset: -20%;
+            z-index: 6;
+            pointer-events: none;
+            background:
+                radial-gradient(ellipse at center, transparent 45%, rgba(0, 0, 0, 0.48) 100%),
+                linear-gradient(
+                    115deg,
+                    transparent 34%,
+                    rgba(255, 255, 255, 0.035) 44%,
+                    transparent 55%
+                );
+            animation: crt-flicker 6s infinite;
+        }
+
+        @keyframes crt-flicker {
+            0%, 18%, 22%, 62%, 64%, 100% {
+                opacity: 1;
+            }
+            20%, 63% {
+                opacity: 0.88;
+            }
+        }
+
+        #terminal-host {
+            position: relative;
+            z-index: 2;
+            min-height: 490px;
+            padding: 7px;
+        }
+
+        .boot-message {
+            position: absolute;
+            top: 20px;
+            left: 24px;
+            z-index: 1;
+            color: var(--phosphor);
+            font-size: 1.35rem;
+            letter-spacing: 0.06em;
+            text-shadow: 0 0 8px var(--phosphor-glow);
+            pointer-events: none;
+            transition: opacity 250ms ease;
+        }
+
+        .boot-message.hidden {
+            opacity: 0;
+        }
+
+        /* Le vrai terminal PyScript/XTerm */
+        .xterm {
+            position: relative;
+            z-index: 2;
+            height: 100%;
+            padding: 5px !important;
+            font-variant-ligatures: none;
+            filter: drop-shadow(0 0 4px var(--phosphor-glow));
+        }
+
+        .xterm,
+        .xterm-viewport,
+        .xterm-screen {
+            background: transparent !important;
+        }
+
+        .xterm-viewport {
+            scrollbar-width: thin;
+            scrollbar-color: var(--phosphor-muted) transparent;
+        }
+
+        .xterm-viewport::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        .xterm-viewport::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .xterm-viewport::-webkit-scrollbar-thumb {
+            border: 2px solid transparent;
+            border-radius: 0;
+            background: var(--phosphor-muted);
+            background-clip: padding-box;
+        }
+
+        .control-panel {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            align-items: center;
+            gap: 18px;
+            margin-top: 20px;
+            padding: 15px 16px 11px;
+            border: 3px solid #756f60;
+            background:
+                repeating-linear-gradient(
+                    90deg,
+                    rgba(0, 0, 0, 0.035) 0 1px,
+                    transparent 1px 5px
+                ),
+                #bdb5a0;
+            box-shadow:
+                inset 2px 2px 0 rgba(255, 255, 255, 0.28),
+                inset -3px -3px 0 rgba(65, 60, 51, 0.16);
+        }
+
+        .instructions {
+            margin: 0;
+            color: #333229;
+            font-family: "VT323", monospace;
+            font-size: clamp(1.05rem, 2.8vw, 1.3rem);
+            line-height: 1.05;
+            letter-spacing: 0.025em;
+        }
+
+        .theme-button {
+            min-width: 185px;
+            padding: 12px 14px 10px;
+            border: 3px solid #3c3a31;
+            border-radius: 0;
+            color: var(--button-text);
+            font-family: "Press Start 2P", monospace;
+            font-size: 0.58rem;
+            line-height: 1.5;
+            text-transform: uppercase;
+            cursor: pointer;
+            background:
+                linear-gradient(180deg, #eee7d4, var(--button-face));
+            box-shadow:
+                0 5px 0 var(--button-shadow),
+                inset 2px 2px 0 rgba(255, 255, 255, 0.75);
+            transition:
+                transform 80ms ease,
+                box-shadow 80ms ease,
+                color 180ms ease;
+        }
+
+        .theme-button:hover {
+            color: var(--phosphor-muted);
+        }
+
+        .theme-button:active {
+            transform: translateY(4px);
+            box-shadow:
+                0 1px 0 var(--button-shadow),
+                inset 2px 2px 0 rgba(255, 255, 255, 0.75);
+        }
+
+        .theme-button:focus-visible {
+            outline: 3px solid var(--phosphor);
+            outline-offset: 4px;
+        }
+
+        .button-light {
+            display: inline-block;
+            width: 9px;
+            height: 9px;
+            margin-right: 8px;
+            border: 1px solid #25251f;
+            vertical-align: -1px;
+            background: var(--phosphor);
+            box-shadow: 0 0 7px var(--phosphor-glow);
+        }
+
+        .footer-line {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            margin: 15px 5px 0;
+            color: #4b483d;
+            font-family: "Press Start 2P", monospace;
+            font-size: clamp(0.38rem, 1.2vw, 0.54rem);
+            line-height: 1.6;
+            text-transform: uppercase;
+        }
+
+        @media (max-width: 700px) {
+            main {
+                width: min(100% - 12px, 1120px);
+                padding-top: 22px;
+            }
+
+            .minitel {
+                padding: 14px 10px 18px;
+                border-width: 3px;
+                border-radius: 19px;
+            }
+
+            .brand-row {
+                margin-inline: 7px;
+            }
+
+            .screen-frame {
+                min-height: 500px;
+                padding: 8px 4px;
+                border-width: 4px;
+                border-radius: 28px / 7%;
+            }
+
+            #terminal-host {
+                min-height: 470px;
+                padding: 4px 0;
+            }
+
+            .control-panel {
+                grid-template-columns: 1fr;
+            }
+
+            .theme-button {
+                width: 100%;
+            }
+
+            .footer-line {
+                flex-direction: column;
+                gap: 3px;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation: none !important;
+                scroll-behavior: auto !important;
+            }
         }
     </style>
 </head>
 
 <body>
     <main>
-        <h1>TGWN - By Maxonsss</h1>
+        <header class="page-header">
+            <p class="eyebrow">Connexion distante // Ligne 3615-TGWN</p>
+            <h1>TGWN TERMINAL</h1>
+            <p class="subtitle">
+                Système d'exploration textuelle — interface vidéotex expérimentale
+            </p>
+        </header>
 
-        <p class="informations">
-            Le jeu peut prendre quelques secondes à charger.
-            Clique dans le terminal pour écrire.
-        </p>
+        <section class="minitel" aria-label="Terminal du jeu">
+            <div class="brand-row">
+                <div class="brand">
+                    <span>MAXONSSS</span>
+                    <span>//</span>
+                    <span>MODEL M-84</span>
+                </div>
 
-        <script
-            type="py"
-            src="./main.py"
-            config="./pyscript.json"
-            terminal
-            worker>
-        </script>
+                <div class="status">
+                    <span class="status-led" aria-hidden="true"></span>
+                    <span>ONLINE</span>
+                </div>
+            </div>
+
+            <div class="screen-frame">
+                <div id="terminal-host">
+                    <div id="boot-message" class="boot-message">
+                        INITIALISATION DU TERMINAL<span aria-hidden="true">_</span>
+                    </div>
+
+                    <script
+                        id="game-terminal"
+                        type="py"
+                        src="./main.py"
+                        config="./pyscript.json"
+                        terminal
+                        worker>
+                    </script>
+                </div>
+            </div>
+
+            <div class="control-panel">
+                <p class="instructions">
+                    Le chargement peut prendre quelques secondes.<br>
+                    Clique dans l'écran puis utilise ton clavier pour jouer.
+                </p>
+
+                <button
+                    id="theme-toggle"
+                    class="theme-button"
+                    type="button"
+                    aria-label="Passer le terminal en violet"
+                    aria-pressed="false">
+                    <span class="button-light" aria-hidden="true"></span>
+                    <span id="theme-label">Mode : vert</span>
+                </button>
+            </div>
+
+            <div class="footer-line" aria-hidden="true">
+                <span>VIDEOTEX 1200/75 BAUD</span>
+                <span>© 1984–2026 TGWN NETWORK</span>
+            </div>
+        </section>
     </main>
-</body>
 
+    <script>
+        const root = document.documentElement;
+        const terminalScript = document.getElementById("game-terminal");
+        const themeButton = document.getElementById("theme-toggle");
+        const themeLabel = document.getElementById("theme-label");
+        const bootMessage = document.getElementById("boot-message");
+
+        const terminalThemes = {
+            green: {
+                background: "#020b06",
+                foreground: "#63ff91",
+                cursor: "#d5ffe0",
+                cursorAccent: "#020b06",
+                selectionBackground: "#2eb85c66",
+                selectionForeground: "#effff3",
+                black: "#010503",
+                red: "#ff5c65",
+                green: "#63ff91",
+                yellow: "#e7ff68",
+                blue: "#58c7ff",
+                magenta: "#d66cff",
+                cyan: "#5cffe1",
+                white: "#d5ffe0",
+                brightBlack: "#37764b",
+                brightRed: "#ff8a90",
+                brightGreen: "#b2ffc6",
+                brightYellow: "#f4ffad",
+                brightBlue: "#a1e3ff",
+                brightMagenta: "#edb0ff",
+                brightCyan: "#adfff0",
+                brightWhite: "#ffffff"
+            },
+
+            purple: {
+                background: "#0b0210",
+                foreground: "#e15cff",
+                cursor: "#f8d7ff",
+                cursorAccent: "#0b0210",
+                selectionBackground: "#b33bd966",
+                selectionForeground: "#fff1ff",
+                black: "#050007",
+                red: "#ff657c",
+                green: "#75ffbb",
+                yellow: "#f4f06e",
+                blue: "#71b7ff",
+                magenta: "#e15cff",
+                cyan: "#67f7ff",
+                white: "#f8d7ff",
+                brightBlack: "#774085",
+                brightRed: "#ff9bab",
+                brightGreen: "#b9ffdd",
+                brightYellow: "#fffcae",
+                brightBlue: "#b8d8ff",
+                brightMagenta: "#f5b3ff",
+                brightCyan: "#b5fbff",
+                brightWhite: "#ffffff"
+            }
+        };
+
+        function updateButton(themeName) {
+            const isPurple = themeName === "purple";
+
+            themeLabel.textContent = isPurple ? "Mode : violet" : "Mode : vert";
+            themeButton.setAttribute("aria-pressed", String(isPurple));
+            themeButton.setAttribute(
+                "aria-label",
+                isPurple
+                    ? "Passer le terminal en vert"
+                    : "Passer le terminal en violet"
+            );
+        }
+
+        function styleXTerm(themeName) {
+            const terminal = terminalScript.terminal;
+
+            if (!terminal) {
+                return false;
+            }
+
+            terminal.options = {
+                theme: terminalThemes[themeName],
+                fontFamily: '"VT323", "Courier New", monospace',
+                fontSize: window.innerWidth <= 700 ? 18 : 21,
+                fontWeight: "400",
+                fontWeightBold: "700",
+                letterSpacing: 0.6,
+                lineHeight: 1.04,
+                cursorBlink: true,
+                cursorStyle: "block",
+                cursorInactiveStyle: "outline",
+                scrollback: 3000
+            };
+
+            return true;
+        }
+
+        function applyTheme(themeName, savePreference = true) {
+            root.dataset.theme = themeName;
+            updateButton(themeName);
+            styleXTerm(themeName);
+
+            if (savePreference) {
+                localStorage.setItem("tgwn-terminal-theme", themeName);
+            }
+        }
+
+        function waitForTerminal() {
+            if (styleXTerm(root.dataset.theme)) {
+                bootMessage.classList.add("hidden");
+
+                // Redonne le focus à XTerm après un clic sur toute la zone écran.
+                document.querySelector(".screen-frame").addEventListener("click", () => {
+                    terminalScript.terminal?.focus();
+                });
+
+                return;
+            }
+
+            window.setTimeout(waitForTerminal, 100);
+        }
+
+        const savedTheme = localStorage.getItem("tgwn-terminal-theme");
+        const initialTheme = savedTheme === "purple" ? "purple" : "green";
+
+        applyTheme(initialTheme, false);
+        waitForTerminal();
+
+        themeButton.addEventListener("click", () => {
+            const nextTheme =
+                root.dataset.theme === "green" ? "purple" : "green";
+
+            applyTheme(nextTheme);
+            terminalScript.terminal?.focus();
+        });
+
+        window.addEventListener("resize", () => {
+            if (!terminalScript.terminal) {
+                return;
+            }
+
+            terminalScript.terminal.options.fontSize =
+                window.innerWidth <= 700 ? 18 : 21;
+        });
+    </script>
+</body>
 </html>
+'''
+
+output = Path("/mnt/data/index_retro_minitel.html")
+output.write_text(html, encoding="utf-8")
+
+print(f"Fichier créé : {output}")
+print(f"Taille : {output.stat().st_size} octets")
