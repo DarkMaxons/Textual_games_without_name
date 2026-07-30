@@ -1,0 +1,8 @@
+{
+    "files": {
+        "./ascii_renderer.py": "./ascii_renderer.py",
+        "./test_game.py": "./test_game.py",
+        "./generate_assets.py": "./generate_assets.py",
+        "./piece_salon.py": "./piece_salon.py"
+    }
+}
