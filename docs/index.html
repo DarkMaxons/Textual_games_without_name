@@ -1,6 +1,4 @@
-from pathlib import Path
-
-html = r'''<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="fr" data-theme="green">
 <head>
     <meta charset="UTF-8">
@@ -712,10 +710,3 @@ html = r'''<!DOCTYPE html>
     </script>
 </body>
 </html>
-'''
-
-output = Path("/mnt/data/index_retro_minitel.html")
-output.write_text(html, encoding="utf-8")
-
-print(f"Fichier créé : {output}")
-print(f"Taille : {output.stat().st_size} octets")
