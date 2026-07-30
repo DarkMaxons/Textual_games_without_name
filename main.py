@@ -22,7 +22,13 @@ from typing import Any
 
 from ascii_renderer import color_supported, render_image, terminal_width
 
-ROOT = Path(__file__).resolve().parent
+# En Python classique, __file__ indique le chemin de main.py.
+# Dans PyScript, __file__ peut ne pas exister.
+if "__file__" in globals():
+    ROOT = Path(__file__).resolve().parent
+else:
+    ROOT = Path.cwd()
+
 ROOM_ASSETS = ROOT / "assets" / "rooms"
 DEFAULT_SAVE = ROOT / "sauvegarde_maison.json"
 
