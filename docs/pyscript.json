@@ -1,8 +1,28 @@
 {
+    "packages": [
+        "Pillow"
+    ],
+
     "files": {
         "./ascii_renderer.py": "./ascii_renderer.py",
-        "./test_game.py": "./test_game.py",
-        "./generate_assets.py": "./generate_assets.py",
-        "./piece_salon.py": "./piece_salon.py"
+
+        "./assets/rooms/atelier.png": "./assets/rooms/atelier.png",
+        "./assets/rooms/bibliotheque.png": "./assets/rooms/bibliotheque.png",
+        "./assets/rooms/bureau_secret.png": "./assets/rooms/bureau_secret.png",
+        "./assets/rooms/cave.png": "./assets/rooms/cave.png",
+        "./assets/rooms/chambre_enfant.png": "./assets/rooms/chambre_enfant.png",
+        "./assets/rooms/chambre_maitre.png": "./assets/rooms/chambre_maitre.png",
+        "./assets/rooms/chapelle.png": "./assets/rooms/chapelle.png",
+        "./assets/rooms/couloir.png": "./assets/rooms/couloir.png",
+        "./assets/rooms/crypte.png": "./assets/rooms/crypte.png",
+        "./assets/rooms/cuisine.png": "./assets/rooms/cuisine.png",
+        "./assets/rooms/grenier.png": "./assets/rooms/grenier.png",
+        "./assets/rooms/jardin.png": "./assets/rooms/jardin.png",
+        "./assets/rooms/palier.png": "./assets/rooms/palier.png",
+        "./assets/rooms/salle_a_manger.png": "./assets/rooms/salle_a_manger.png",
+        "./assets/rooms/salle_de_bain.png": "./assets/rooms/salle_de_bain.png",
+        "./assets/rooms/salon.png": "./assets/rooms/salon.png",
+        "./assets/rooms/serre.png": "./assets/rooms/serre.png",
+        "./assets/rooms/vestibule.png": "./assets/rooms/vestibule.png"
     }
 }
