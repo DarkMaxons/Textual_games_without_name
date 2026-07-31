@@ -14,6 +14,7 @@ import json
 import random
 import re
 import sys
+import shutil
 import textwrap
 import unicodedata
 from dataclasses import dataclass, field
@@ -31,12 +32,29 @@ else:
 
 ROOM_ASSETS = ROOT / "assets" / "rooms"
 DEFAULT_SAVE = ROOT / "sauvegarde_maison.json"
+# Sert à ignorer les codes couleur ANSI lors du calcul de la longueur
+ANSI_CODES = re.compile(r"\033\[[0-9;]*m")
 
 
 # ---------------------------------------------------------------------------
 # Utilitaires de texte
 # ---------------------------------------------------------------------------
 
+def texte_centre(texte, largeur=None):
+    texte = str(texte)
+
+    if largeur is None:
+        largeur = shutil.get_terminal_size(fallback=(80, 24)).columns
+
+    texte_visible = ANSI_CODES.sub("", texte)
+    espaces = max(0, (largeur - len(texte_visible)) // 2)
+
+    return (" " * espaces) + texte
+
+
+def print_centre(texte=""):
+    for ligne in str(texte).split("\n"):
+        print(texte_centre(ligne))
 
 def normaliser(texte: str) -> str:
     """Normalise une commande sans perdre les chiffres ni l'ordre des mots."""
@@ -3246,18 +3264,18 @@ class Jeu:
 
 def main() -> None:
     jeu = Jeu()
-    print(jeu.introduction())
-    print(jeu.decrire_piece())
+    print_centre(jeu.introduction())
+    print_centre(jeu.decrire_piece())
 
     while not jeu.termine:
         try:
             commande = input(f"\n{jeu.invite_commande()}")
         except (EOFError, KeyboardInterrupt):
-            print("\nVous interrompez l'exploration.")
+            print_centre("\nVous interrompez l'exploration.")
             break
         resultat = jeu.executer(commande)
         if resultat:
-            print(resultat)
+            print_centre(resultat)
 
     # Une fin narrative peut encore ajouter un succès après avoir positionné
     # ``termine``. Le texte a déjà été affiché par la commande correspondante.
