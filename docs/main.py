@@ -44,7 +44,7 @@ def texte_centre(texte, largeur=None):
     texte = str(texte)
 
     if largeur is None:
-        largeur = shutil.get_terminal_size(fallback=(80, 24)).columns
+        largeur = terminal_width()
 
     texte_visible = ANSI_CODES.sub("", texte)
     espaces = max(0, (largeur - len(texte_visible)) // 2)
